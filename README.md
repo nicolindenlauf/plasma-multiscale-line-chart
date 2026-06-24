@@ -22,6 +22,7 @@ It keeps each sensor's value and legend unit intact, while the graph scales each
 - `history min-history max`: scale from the visible history minimum to the visible history maximum.
 - `history min-sensor max`: scale from the visible history minimum to the sensor's reported maximum.
 - `sensor min-sensor max`: scale from the sensor's reported minimum to the sensor's reported maximum.
+- `sensor min-history max`: scale from the sensor's reported minimum to the visible history maximum.
 - `custom min-custom max`: per-sensor override only; scale to the custom absolute range entered in the settings.
 
 Unit defaults apply first. Any selected sensor can override the unit default from the Sensor range overrides section.

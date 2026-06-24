@@ -450,6 +450,11 @@ Kirigami.FormLayout {
             value: 4
         }
 
+        ListElement {
+            text: "sensor min-history max"
+            value: 5
+        }
+
     }
 
     ListModel {
@@ -483,6 +488,11 @@ Kirigami.FormLayout {
         ListElement {
             text: "sensor min-sensor max"
             value: 4
+        }
+
+        ListElement {
+            text: "sensor min-history max"
+            value: 6
         }
 
         ListElement {

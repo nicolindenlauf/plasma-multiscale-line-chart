@@ -109,7 +109,7 @@ Charts.LineChart {
         return isFinite(value) ? value : undefined;
     }
 
-    function rangeModeName(mode) {
+    function rangeModeName(mode, hasOverride) {
         if (mode === 0)
             return "zeroSensorMaximum";
 
@@ -125,8 +125,11 @@ Charts.LineChart {
         if (mode === 4)
             return "sensorRange";
 
-        if (mode === 5)
+        if (mode === 5 && hasOverride)
             return "customRange";
+
+        if (mode === 5 || mode === 6)
+            return "sensorMinimumHistoryMaximum";
 
         return "unitDefault";
     }
@@ -303,6 +306,7 @@ Charts.LineChart {
     }
 
     function scaleRange(sensorIndex) {
+        const override = sensorOverride(sensorIndex);
         const mode = rangeMode(sensorIndex);
         const history = historyBounds(sensorIndex);
         if (mode === 0)
@@ -321,12 +325,14 @@ Charts.LineChart {
             const minimum = metadataMinimum(sensorIndex);
             return saneRange(minimum, sensorMaximum(sensorIndex, minimum), sensorIndex);
         }
-        if (mode === 5) {
-            const override = sensorOverride(sensorIndex);
+        if (mode === 5 && override) {
             const minimum = customOverrideValue(override, "customMinimum");
             const maximum = customOverrideValue(override, "customMaximum");
             return saneRange(minimum, maximum, sensorIndex);
         }
+        if (mode === 5 || mode === 6)
+            return saneRange(metadataMinimum(sensorIndex), history.maximum, sensorIndex);
+
         return saneRange(0, sensorMaximum(sensorIndex, 0), sensorIndex);
     }
 
@@ -418,7 +424,7 @@ Charts.LineChart {
                 "minimum": range.minimum,
                 "maximum": range.maximum,
                 "unit": unit,
-                "mode": rangeModeName(rangeMode(sensorIndex)),
+                "mode": rangeModeName(rangeMode(sensorIndex), sensorOverride(sensorIndex) !== null),
                 "ticks": scaleTicks(range.minimum, range.maximum, unit)
             });
         }

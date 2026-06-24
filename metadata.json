@@ -31,7 +31,7 @@
         "Id": "io.github.nicolindenlauf.multiscalelinechart",
         "License": "LGPL-2.0-or-later",
         "Name": "Multi-Scale Line Chart",
-        "Version": "1.1.0"
+        "Version": "1.1.1"
     },
     "X-KDE-ParentApp": "org.kde.plasmashell"
 }
