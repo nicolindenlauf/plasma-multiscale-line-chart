@@ -29,6 +29,17 @@ git clone https://github.com/nicolindenlauf/plasma-multiscale-line-chart.git ~/.
 
 Then reopen System Monitor or restart Plasma so the new face is discovered.
 
+## Install From Release Archive
+
+Download `io.github.nicolindenlauf.multiscalelinechart-1.0.0.tar.gz` from the GitHub release page, then extract it into the System Monitor sensor face directory:
+
+```sh
+mkdir -p ~/.local/share/ksysguard/sensorfaces
+tar -xzf io.github.nicolindenlauf.multiscalelinechart-1.0.0.tar.gz -C ~/.local/share/ksysguard/sensorfaces
+```
+
+Then reopen System Monitor or restart Plasma.
+
 ## Development Install
 
 If you already cloned this repo somewhere else, symlink it into the sensor face directory:
