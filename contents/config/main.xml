@@ -30,50 +30,53 @@
         <entry name="scaleLabelOpacity" type="Int">
             <default>82</default>
         </entry>
-        <entry name="percentNormalizationMode" type="Int">
+        <entry name="percentRangeMode" type="Int">
             <default>0</default>
         </entry>
-        <entry name="byteNormalizationMode" type="Int">
+        <entry name="byteRangeMode" type="Int">
             <default>0</default>
         </entry>
-        <entry name="byteRateNormalizationMode" type="Int">
-            <default>0</default>
-        </entry>
-        <entry name="frequencyNormalizationMode" type="Int">
+        <entry name="byteRateRangeMode" type="Int">
             <default>1</default>
         </entry>
-        <entry name="timeNormalizationMode" type="Int">
-            <default>0</default>
+        <entry name="frequencyRangeMode" type="Int">
+            <default>2</default>
         </entry>
-        <entry name="bitRateNormalizationMode" type="Int">
-            <default>0</default>
-        </entry>
-        <entry name="voltageNormalizationMode" type="Int">
-            <default>0</default>
-        </entry>
-        <entry name="temperatureNormalizationMode" type="Int">
+        <entry name="timeRangeMode" type="Int">
             <default>1</default>
         </entry>
-        <entry name="powerNormalizationMode" type="Int">
+        <entry name="bitRateRangeMode" type="Int">
             <default>1</default>
         </entry>
-        <entry name="energyNormalizationMode" type="Int">
+        <entry name="voltageRangeMode" type="Int">
             <default>0</default>
         </entry>
-        <entry name="currentNormalizationMode" type="Int">
+        <entry name="temperatureRangeMode" type="Int">
+            <default>2</default>
+        </entry>
+        <entry name="powerRangeMode" type="Int">
+            <default>2</default>
+        </entry>
+        <entry name="energyRangeMode" type="Int">
             <default>0</default>
         </entry>
-        <entry name="decibelNormalizationMode" type="Int">
+        <entry name="currentRangeMode" type="Int">
+            <default>0</default>
+        </entry>
+        <entry name="decibelRangeMode" type="Int">
+            <default>2</default>
+        </entry>
+        <entry name="rateRangeMode" type="Int">
             <default>1</default>
         </entry>
-        <entry name="rateNormalizationMode" type="Int">
+        <entry name="rpmRangeMode" type="Int">
             <default>0</default>
         </entry>
-        <entry name="rpmNormalizationMode" type="Int">
-            <default>0</default>
+        <entry name="otherRangeMode" type="Int">
+            <default>1</default>
         </entry>
-        <entry name="otherNormalizationMode" type="Int">
-            <default>0</default>
+        <entry name="sensorRangeOverrides" type="String">
+            <default>{}</default>
         </entry>
         <entry name="historyAmount" type="Int">
             <default>60</default>

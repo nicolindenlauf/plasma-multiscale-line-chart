@@ -2,23 +2,29 @@
 
 Multi-Scale Line Chart is a KDE Plasma System Monitor sensor face for plotting unrelated sensors in one line chart without forcing them onto one physical unit range.
 
-It keeps each sensor's value and legend unit intact, while the graph can normalize each line by unit family. The scale labels and horizontal guide lines are color-coded per sensor, and legend hover highlights the matching line, scale, and guide lines.
+It keeps each sensor's value and legend unit intact, while the graph scales each line with configurable per-unit defaults and optional per-sensor overrides. The scale labels and horizontal guide lines are color-coded per sensor, and legend hover highlights the matching line, scale, and guide lines.
 
 ## Features
 
 - Per-sensor colored scale labels and horizontal guide lines
-- Configurable normalization by unit family
-- Percent sensors can stay fixed at 0-100% or use normalization
+- Configurable range defaults by unit family
+- Per-sensor range overrides
+- Optional custom absolute min/max values per sensor
 - Byte, byte-rate, bit-rate, frequency, temperature, power, energy, voltage, current, dBm, rate, RPM, time, and fallback unit settings
-- History-aware 0-max and min-max scaling
+- Sensor-metadata and history-aware scaling
 - Startup fill from left to right, then scrolling history
 - Native System Monitor sensor selection and legend formatting
 
-## Normalization Modes
+## Range Modes
 
-- `none`: percent sensors only; draw the raw 0-100% value.
-- `0-max`: scale from zero to the sensor maximum when available, otherwise the visible history maximum.
-- `min-max`: scale from the visible history minimum to the visible history maximum.
+- `0-sensor max`: scale from zero to the sensor's reported maximum. If the sensor does not report a useful maximum, the chart falls back to a safe value such as 100% or the visible history maximum.
+- `0-history max`: scale from zero to the visible history maximum.
+- `history min-history max`: scale from the visible history minimum to the visible history maximum.
+- `history min-sensor max`: scale from the visible history minimum to the sensor's reported maximum.
+- `sensor min-sensor max`: scale from the sensor's reported minimum to the sensor's reported maximum.
+- `custom min-custom max`: per-sensor override only; scale to the custom absolute range entered in the settings.
+
+Unit defaults apply first. Any selected sensor can override the unit default from the Sensor range overrides section.
 
 ## Install From Git
 

@@ -23,22 +23,102 @@ Kirigami.FormLayout {
     property alias cfg_scaleTickCount: scaleTickCountSpin.value
     property alias cfg_scaleGridOpacity: scaleGridOpacitySpin.value
     property alias cfg_scaleLabelOpacity: scaleLabelOpacitySpin.value
-    property alias cfg_percentNormalizationMode: percentNormalizationCombo.currentIndex
-    property alias cfg_byteNormalizationMode: byteNormalizationCombo.currentIndex
-    property alias cfg_byteRateNormalizationMode: byteRateNormalizationCombo.currentIndex
-    property alias cfg_frequencyNormalizationMode: frequencyNormalizationCombo.currentIndex
-    property alias cfg_timeNormalizationMode: timeNormalizationCombo.currentIndex
-    property alias cfg_bitRateNormalizationMode: bitRateNormalizationCombo.currentIndex
-    property alias cfg_voltageNormalizationMode: voltageNormalizationCombo.currentIndex
-    property alias cfg_temperatureNormalizationMode: temperatureNormalizationCombo.currentIndex
-    property alias cfg_powerNormalizationMode: powerNormalizationCombo.currentIndex
-    property alias cfg_energyNormalizationMode: energyNormalizationCombo.currentIndex
-    property alias cfg_currentNormalizationMode: currentNormalizationCombo.currentIndex
-    property alias cfg_decibelNormalizationMode: decibelNormalizationCombo.currentIndex
-    property alias cfg_rateNormalizationMode: rateNormalizationCombo.currentIndex
-    property alias cfg_rpmNormalizationMode: rpmNormalizationCombo.currentIndex
-    property alias cfg_otherNormalizationMode: otherNormalizationCombo.currentIndex
+    property alias cfg_percentRangeMode: percentRangeCombo.currentIndex
+    property alias cfg_byteRangeMode: byteRangeCombo.currentIndex
+    property alias cfg_byteRateRangeMode: byteRateRangeCombo.currentIndex
+    property alias cfg_frequencyRangeMode: frequencyRangeCombo.currentIndex
+    property alias cfg_timeRangeMode: timeRangeCombo.currentIndex
+    property alias cfg_bitRateRangeMode: bitRateRangeCombo.currentIndex
+    property alias cfg_voltageRangeMode: voltageRangeCombo.currentIndex
+    property alias cfg_temperatureRangeMode: temperatureRangeCombo.currentIndex
+    property alias cfg_powerRangeMode: powerRangeCombo.currentIndex
+    property alias cfg_energyRangeMode: energyRangeCombo.currentIndex
+    property alias cfg_currentRangeMode: currentRangeCombo.currentIndex
+    property alias cfg_decibelRangeMode: decibelRangeCombo.currentIndex
+    property alias cfg_rateRangeMode: rateRangeCombo.currentIndex
+    property alias cfg_rpmRangeMode: rpmRangeCombo.currentIndex
+    property alias cfg_otherRangeMode: otherRangeCombo.currentIndex
     property alias cfg_historyAmount: historySpin.value
+    property string cfg_sensorRangeOverrides: "{}"
+    property var sensorRangeOverrides: ({
+    })
+
+    function parseOverrides() {
+        try {
+            const parsed = JSON.parse(root.cfg_sensorRangeOverrides || "{}");
+            root.sensorRangeOverrides = parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {
+            };
+        } catch (error) {
+            root.sensorRangeOverrides = {
+            };
+        }
+    }
+
+    function copyObject(object) {
+        const copy = {
+        };
+        if (!object)
+            return copy;
+
+        for (const key in object) {
+            copy[key] = object[key];
+        }
+        return copy;
+    }
+
+    function sensorLabel(sensorId, sensor) {
+        if (controller.sensorLabels && controller.sensorLabels[sensorId])
+            return controller.sensorLabels[sensorId];
+
+        if (sensor && sensor.shortName)
+            return sensor.shortName;
+
+        if (sensor && sensor.name)
+            return sensor.name;
+
+        return sensorId.split("/").pop();
+    }
+
+    function sensorOverride(sensorId) {
+        const override = root.sensorRangeOverrides ? root.sensorRangeOverrides[sensorId] : undefined;
+        return override && typeof override === "object" ? override : {
+        };
+    }
+
+    function sensorOverrideMode(sensorId) {
+        const mode = Number(sensorOverride(sensorId).mode);
+        return isFinite(mode) ? mode : -1;
+    }
+
+    function sensorOverrideCustomValue(sensorId, key) {
+        const value = Number(sensorOverride(sensorId)[key]);
+        return isFinite(value) ? String(value) : "";
+    }
+
+    function numberFromText(text) {
+        const value = Number(String(text).replace(",", "."));
+        return isFinite(value) ? value : undefined;
+    }
+
+    function setSensorOverride(sensorId, values) {
+        const overrides = copyObject(root.sensorRangeOverrides);
+        const current = copyObject(overrides[sensorId]);
+        for (const key in values) {
+            current[key] = values[key];
+        }
+        const mode = Number(current.mode);
+        if (!isFinite(mode) || mode < 0) {
+            delete overrides[sensorId];
+        } else {
+            current.mode = mode;
+            overrides[sensorId] = current;
+        }
+        root.sensorRangeOverrides = overrides;
+        root.cfg_sensorRangeOverrides = JSON.stringify(overrides);
+    }
+
+    onCfg_sensorRangeOverridesChanged: parseOverrides()
+    Component.onCompleted: parseOverrides()
 
     Item {
         Kirigami.FormData.label: i18nc("@title:group", "Appearance")
@@ -106,143 +186,227 @@ Kirigami.FormLayout {
     }
 
     Item {
-        Kirigami.FormData.label: i18nc("title:group", "Unit normalization")
+        Kirigami.FormData.label: i18nc("title:group", "Unit range defaults")
         Kirigami.FormData.isSection: true
     }
 
     QQC2.ComboBox {
-        id: percentNormalizationCombo
+        id: percentRangeCombo
 
         Kirigami.FormData.label: i18nc("@label:combobox", "Percent:")
         textRole: "text"
         valueRole: "value"
-        model: percentNormalizationModes
+        model: unitRangeModes
     }
 
     QQC2.ComboBox {
-        id: byteNormalizationCombo
+        id: byteRangeCombo
 
         Kirigami.FormData.label: i18nc("@label:combobox", "Bytes:")
         textRole: "text"
         valueRole: "value"
-        model: normalizationModes
+        model: unitRangeModes
     }
 
     QQC2.ComboBox {
-        id: byteRateNormalizationCombo
+        id: byteRateRangeCombo
 
         Kirigami.FormData.label: i18nc("@label:combobox", "Byte rate:")
         textRole: "text"
         valueRole: "value"
-        model: normalizationModes
+        model: unitRangeModes
     }
 
     QQC2.ComboBox {
-        id: frequencyNormalizationCombo
+        id: frequencyRangeCombo
 
         Kirigami.FormData.label: i18nc("@label:combobox", "Frequency:")
         textRole: "text"
         valueRole: "value"
-        model: normalizationModes
+        model: unitRangeModes
     }
 
     QQC2.ComboBox {
-        id: timeNormalizationCombo
+        id: timeRangeCombo
 
         Kirigami.FormData.label: i18nc("@label:combobox", "Time:")
         textRole: "text"
         valueRole: "value"
-        model: normalizationModes
+        model: unitRangeModes
     }
 
     QQC2.ComboBox {
-        id: bitRateNormalizationCombo
+        id: bitRateRangeCombo
 
         Kirigami.FormData.label: i18nc("@label:combobox", "Bit rate:")
         textRole: "text"
         valueRole: "value"
-        model: normalizationModes
+        model: unitRangeModes
     }
 
     QQC2.ComboBox {
-        id: voltageNormalizationCombo
+        id: voltageRangeCombo
 
         Kirigami.FormData.label: i18nc("@label:combobox", "Voltage:")
         textRole: "text"
         valueRole: "value"
-        model: normalizationModes
+        model: unitRangeModes
     }
 
     QQC2.ComboBox {
-        id: temperatureNormalizationCombo
+        id: temperatureRangeCombo
 
         Kirigami.FormData.label: i18nc("@label:combobox", "Temperature:")
         textRole: "text"
         valueRole: "value"
-        model: normalizationModes
+        model: unitRangeModes
     }
 
     QQC2.ComboBox {
-        id: powerNormalizationCombo
+        id: powerRangeCombo
 
         Kirigami.FormData.label: i18nc("@label:combobox", "Power:")
         textRole: "text"
         valueRole: "value"
-        model: normalizationModes
+        model: unitRangeModes
     }
 
     QQC2.ComboBox {
-        id: energyNormalizationCombo
+        id: energyRangeCombo
 
         Kirigami.FormData.label: i18nc("@label:combobox", "Energy:")
         textRole: "text"
         valueRole: "value"
-        model: normalizationModes
+        model: unitRangeModes
     }
 
     QQC2.ComboBox {
-        id: currentNormalizationCombo
+        id: currentRangeCombo
 
         Kirigami.FormData.label: i18nc("@label:combobox", "Current:")
         textRole: "text"
         valueRole: "value"
-        model: normalizationModes
+        model: unitRangeModes
     }
 
     QQC2.ComboBox {
-        id: decibelNormalizationCombo
+        id: decibelRangeCombo
 
         Kirigami.FormData.label: i18nc("@label:combobox", "dBm:")
         textRole: "text"
         valueRole: "value"
-        model: normalizationModes
+        model: unitRangeModes
     }
 
     QQC2.ComboBox {
-        id: rateNormalizationCombo
+        id: rateRangeCombo
 
         Kirigami.FormData.label: i18nc("@label:combobox", "Rate:")
         textRole: "text"
         valueRole: "value"
-        model: normalizationModes
+        model: unitRangeModes
     }
 
     QQC2.ComboBox {
-        id: rpmNormalizationCombo
+        id: rpmRangeCombo
 
         Kirigami.FormData.label: i18nc("@label:combobox", "RPM:")
         textRole: "text"
         valueRole: "value"
-        model: normalizationModes
+        model: unitRangeModes
     }
 
     QQC2.ComboBox {
-        id: otherNormalizationCombo
+        id: otherRangeCombo
 
         Kirigami.FormData.label: i18nc("@label:combobox", "Other:")
         textRole: "text"
         valueRole: "value"
-        model: normalizationModes
+        model: unitRangeModes
+    }
+
+    Item {
+        Kirigami.FormData.label: i18nc("title:group", "Sensor range overrides")
+        Kirigami.FormData.isSection: true
+    }
+
+    Repeater {
+        model: controller.highPrioritySensorIds
+
+        delegate: ColumnLayout {
+            id: overrideRow
+
+            property string sensorId: modelData
+            readonly property int selectedMode: rangeCombo.currentValue === undefined ? -1 : Number(rangeCombo.currentValue)
+
+            Kirigami.FormData.label: root.sensorLabel(sensorId, sensor) + ":"
+            Layout.fillWidth: true
+            spacing: Kirigami.Units.smallSpacing
+
+            QQC2.ComboBox {
+                id: rangeCombo
+
+                Layout.fillWidth: true
+                textRole: "text"
+                valueRole: "value"
+                model: sensorRangeModes
+                currentIndex: Math.max(0, indexOfValue(root.sensorOverrideMode(overrideRow.sensorId)))
+                onActivated: root.setSensorOverride(overrideRow.sensorId, {
+                    "mode": currentValue
+                })
+            }
+
+            RowLayout {
+                visible: overrideRow.selectedMode === 5
+                Layout.fillWidth: true
+
+                QQC2.TextField {
+                    id: customMinimumField
+
+                    Layout.fillWidth: true
+                    placeholderText: i18nc("@info:placeholder", "Minimum")
+                    text: root.sensorOverrideCustomValue(overrideRow.sensorId, "customMinimum")
+                    inputMethodHints: Qt.ImhFormattedNumbersOnly
+                    onEditingFinished: {
+                        const value = root.numberFromText(text);
+                        if (value !== undefined)
+                            root.setSensorOverride(overrideRow.sensorId, {
+                            "customMinimum": value,
+                            "mode": 5
+                        });
+
+                    }
+                }
+
+                QQC2.TextField {
+                    id: customMaximumField
+
+                    Layout.fillWidth: true
+                    placeholderText: i18nc("@info:placeholder", "Maximum")
+                    text: root.sensorOverrideCustomValue(overrideRow.sensorId, "customMaximum")
+                    inputMethodHints: Qt.ImhFormattedNumbersOnly
+                    onEditingFinished: {
+                        const value = root.numberFromText(text);
+                        if (value !== undefined)
+                            root.setSensorOverride(overrideRow.sensorId, {
+                            "customMaximum": value,
+                            "mode": 5
+                        });
+
+                    }
+                }
+
+            }
+
+            Sensors.Sensor {
+                id: sensor
+
+                sensorId: overrideRow.sensorId
+                updateRateLimit: controller.updateRateLimit
+            }
+
+        }
+
     }
 
     Item {
@@ -259,36 +423,71 @@ Kirigami.FormLayout {
     }
 
     ListModel {
-        id: percentNormalizationModes
+        id: unitRangeModes
 
         ListElement {
-            text: "none"
+            text: "0-sensor max"
             value: 0
         }
 
         ListElement {
-            text: "0-max"
+            text: "0-history max"
             value: 1
         }
 
         ListElement {
-            text: "min-max"
+            text: "history min-history max"
             value: 2
+        }
+
+        ListElement {
+            text: "history min-sensor max"
+            value: 3
+        }
+
+        ListElement {
+            text: "sensor min-sensor max"
+            value: 4
         }
 
     }
 
     ListModel {
-        id: normalizationModes
+        id: sensorRangeModes
 
         ListElement {
-            text: "0-max"
+            text: "unit default"
+            value: -1
+        }
+
+        ListElement {
+            text: "0-sensor max"
             value: 0
         }
 
         ListElement {
-            text: "min-max"
+            text: "0-history max"
             value: 1
+        }
+
+        ListElement {
+            text: "history min-history max"
+            value: 2
+        }
+
+        ListElement {
+            text: "history min-sensor max"
+            value: 3
+        }
+
+        ListElement {
+            text: "sensor min-sensor max"
+            value: 4
+        }
+
+        ListElement {
+            text: "custom min-custom max"
+            value: 5
         }
 
     }

@@ -28,6 +28,7 @@ Charts.LineChart {
     readonly property alias sensorsModel: rawSensorsModel
     readonly property int chartUnit: Formatter.Units.UnitPercent
     readonly property int historyAmount: controller.faceConfiguration.historyAmount
+    readonly property string rangeConfigurationKey: [controller.faceConfiguration.percentRangeMode, controller.faceConfiguration.byteRangeMode, controller.faceConfiguration.byteRateRangeMode, controller.faceConfiguration.frequencyRangeMode, controller.faceConfiguration.timeRangeMode, controller.faceConfiguration.bitRateRangeMode, controller.faceConfiguration.voltageRangeMode, controller.faceConfiguration.temperatureRangeMode, controller.faceConfiguration.powerRangeMode, controller.faceConfiguration.energyRangeMode, controller.faceConfiguration.currentRangeMode, controller.faceConfiguration.decibelRangeMode, controller.faceConfiguration.rateRangeMode, controller.faceConfiguration.rpmRangeMode, controller.faceConfiguration.otherRangeMode, controller.faceConfiguration.sensorRangeOverrides].join("|")
     readonly property int sampleInterval: {
         if (chart.controller.updateRateLimit > 0)
             return chart.controller.updateRateLimit;
@@ -51,121 +52,156 @@ Charts.LineChart {
         return liveSensors[sensorIndex] || null;
     }
 
-    function normalizationMode(name, legacyBoolName, defaultValue) {
+    function rangeModeConfig(name, legacyNormalizationName, legacyBoolName, defaultValue) {
         const mode = chart.controller.faceConfiguration[name];
-        if (mode === "minMax")
-            return name === "percentNormalizationMode" ? 2 : 1;
-
-        if (mode === "zeroMax")
-            return name === "percentNormalizationMode" ? 1 : 0;
-
         if (mode !== undefined)
             return Number(mode);
 
-        const legacyValue = chart.controller.faceConfiguration[legacyBoolName];
-        if (legacyValue !== undefined)
-            return legacyValue ? 1 : 0;
+        const legacyNormalization = chart.controller.faceConfiguration[legacyNormalizationName];
+        if (legacyNormalization !== undefined) {
+            const legacyMode = Number(legacyNormalization);
+            if (legacyMode === 1)
+                return 1;
 
-        return defaultValue;
-    }
+            if (legacyMode === 2)
+                return 2;
 
-    function percentNormalizationMode() {
-        return normalizationMode("percentNormalizationMode", "", 0);
-    }
+            if (legacyNormalization === "minMax")
+                return 2;
 
-    function twoModeNormalization(name, legacyBoolName, defaultValue) {
-        const mode = chart.controller.faceConfiguration[name];
-        if (mode === "minMax")
-            return 1;
+            if (legacyNormalization === "zeroMax")
+                return 0;
 
-        if (mode === "zeroMax")
             return 0;
+        }
+        if (legacyBoolName.length > 0) {
+            const legacyValue = chart.controller.faceConfiguration[legacyBoolName];
+            if (legacyValue !== undefined)
+                return legacyValue ? 2 : 0;
 
-        if (mode !== undefined)
-            return Number(mode);
-
-        const legacyValue = chart.controller.faceConfiguration[legacyBoolName];
-        if (legacyValue !== undefined)
-            return legacyValue ? 1 : 0;
-
+        }
         return defaultValue;
+    }
+
+    function rangeOverrides() {
+        try {
+            const parsed = JSON.parse(chart.controller.faceConfiguration.sensorRangeOverrides || "{}");
+            return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {
+            };
+        } catch (error) {
+            return {
+            };
+        }
+    }
+
+    function sensorOverride(sensorIndex) {
+        const sensorId = rawSensorsModel.sensors[sensorIndex] ?? "";
+        const override = rangeOverrides()[sensorId];
+        if (!override || typeof override !== "object")
+            return null;
+
+        const mode = Number(override.mode);
+        return isFinite(mode) && mode >= 0 ? override : null;
+    }
+
+    function customOverrideValue(override, key) {
+        const value = Number(override ? override[key] : undefined);
+        return isFinite(value) ? value : undefined;
+    }
+
+    function rangeModeName(mode) {
+        if (mode === 0)
+            return "zeroSensorMaximum";
+
+        if (mode === 1)
+            return "zeroHistoryMaximum";
+
+        if (mode === 2)
+            return "historyRange";
+
+        if (mode === 3)
+            return "historyMinimumSensorMaximum";
+
+        if (mode === 4)
+            return "sensorRange";
+
+        if (mode === 5)
+            return "customRange";
+
+        return "unitDefault";
     }
 
     function isUnitFamily(unit, baseUnit) {
         return unit >= baseUnit && unit <= baseUnit + Formatter.Units.MetricPrefixLast;
     }
 
-    function percentScaleMode() {
-        const mode = percentNormalizationMode();
-        if (mode === 1)
-            return "historyMaximum";
-
-        if (mode === 2)
-            return "historyRange";
-
-        return "fixedPercent";
-    }
-
-    function unitNormalizationMode(sensorIndex) {
+    function unitRangeMode(sensorIndex) {
         const sensorId = rawSensorsModel.sensors[sensorIndex] ?? "";
         const name = sensorId.split("/").pop();
         const unit = sensorUnit(sensorIndex);
         if (unit === Formatter.Units.UnitPercent)
-            return percentNormalizationMode();
+            return rangeModeConfig("percentRangeMode", "percentNormalizationMode", "", 0);
 
         if (isUnitFamily(unit, Formatter.Units.UnitByte))
-            return twoModeNormalization("byteNormalizationMode", "", 0);
+            return rangeModeConfig("byteRangeMode", "byteNormalizationMode", "", 0);
 
         if (isUnitFamily(unit, Formatter.Units.UnitByteRate))
-            return twoModeNormalization("byteRateNormalizationMode", "", 0);
+            return rangeModeConfig("byteRateRangeMode", "byteRateNormalizationMode", "", 1);
 
         if (isUnitFamily(unit, Formatter.Units.UnitHertz) || name === "coreFrequency" || name === "memoryFrequency")
-            return twoModeNormalization("frequencyNormalizationMode", "minMaxNormalizeFrequency", 1);
+            return rangeModeConfig("frequencyRangeMode", "frequencyNormalizationMode", "minMaxNormalizeFrequency", 2);
 
         if (unit === Formatter.Units.UnitBootTimestamp || unit === Formatter.Units.UnitSecond || unit === Formatter.Units.UnitTime || unit === Formatter.Units.UnitTicks || unit === Formatter.Units.UnitDuration)
-            return twoModeNormalization("timeNormalizationMode", "", 0);
+            return rangeModeConfig("timeRangeMode", "timeNormalizationMode", "", 1);
 
         if (isUnitFamily(unit, Formatter.Units.UnitBitRate))
-            return twoModeNormalization("bitRateNormalizationMode", "", 0);
+            return rangeModeConfig("bitRateRangeMode", "bitRateNormalizationMode", "", 1);
 
         if (isUnitFamily(unit, Formatter.Units.UnitVolt))
-            return twoModeNormalization("voltageNormalizationMode", "", 0);
+            return rangeModeConfig("voltageRangeMode", "voltageNormalizationMode", "", 0);
 
         if (isUnitFamily(unit, Formatter.Units.UnitWatt) || name === "power")
-            return twoModeNormalization("powerNormalizationMode", "minMaxNormalizePower", 1);
+            return rangeModeConfig("powerRangeMode", "powerNormalizationMode", "minMaxNormalizePower", 2);
 
         if (isUnitFamily(unit, Formatter.Units.UnitWattHour))
-            return twoModeNormalization("energyNormalizationMode", "", 0);
+            return rangeModeConfig("energyRangeMode", "energyNormalizationMode", "", 0);
 
         if (isUnitFamily(unit, Formatter.Units.UnitAmpere))
-            return twoModeNormalization("currentNormalizationMode", "", 0);
+            return rangeModeConfig("currentRangeMode", "currentNormalizationMode", "", 0);
 
         if (unit === Formatter.Units.UnitCelsius || name === "temperature")
-            return twoModeNormalization("temperatureNormalizationMode", "minMaxNormalizeTemperature", 1);
+            return rangeModeConfig("temperatureRangeMode", "temperatureNormalizationMode", "minMaxNormalizeTemperature", 2);
 
         if (unit === Formatter.Units.UnitDecibelMilliWatts)
-            return twoModeNormalization("decibelNormalizationMode", "", 1);
+            return rangeModeConfig("decibelRangeMode", "decibelNormalizationMode", "", 2);
 
         if (unit === Formatter.Units.UnitRate)
-            return twoModeNormalization("rateNormalizationMode", "", 0);
+            return rangeModeConfig("rateRangeMode", "rateNormalizationMode", "", 1);
 
         if (unit === Formatter.Units.UnitRpm)
-            return twoModeNormalization("rpmNormalizationMode", "", 0);
+            return rangeModeConfig("rpmRangeMode", "rpmNormalizationMode", "", 0);
 
-        return twoModeNormalization("otherNormalizationMode", "", 0);
+        return rangeModeConfig("otherRangeMode", "otherNormalizationMode", "", 1);
     }
 
-    function scaleMode(sensorIndex) {
-        if (sensorUnit(sensorIndex) === Formatter.Units.UnitPercent)
-            return percentScaleMode();
+    function rangeMode(sensorIndex) {
+        const override = sensorOverride(sensorIndex);
+        if (override)
+            return Number(override.mode);
 
-        return unitNormalizationMode(sensorIndex) === 1 ? "historyRange" : "historyMaximum";
+        return unitRangeMode(sensorIndex);
     }
 
     function metadataMaximum(sensorIndex) {
         const liveSensor = sensorObject(sensorIndex);
         const maximum = Number(liveSensor && liveSensor.maximum !== undefined ? liveSensor.maximum : rawSensorsModel.headerData(sensorIndex, Qt.Horizontal, Sensors.SensorDataModel.Maximum) ?? 0);
         return isFinite(maximum) && maximum > 0 ? maximum : 0;
+    }
+
+    function metadataMinimum(sensorIndex) {
+        const liveSensor = sensorObject(sensorIndex);
+        const minimum = Number(liveSensor && liveSensor.minimum !== undefined ? liveSensor.minimum : rawSensorsModel.headerData(sensorIndex, Qt.Horizontal, Sensors.SensorDataModel.Minimum) ?? 0);
+        return isFinite(minimum) ? minimum : 0;
     }
 
     function rawValue(sensorIndex) {
@@ -181,11 +217,6 @@ Charts.LineChart {
 
         const modelIndex = rawSensorsModel.index(0, sensorIndex);
         return Number(rawSensorsModel.data(modelIndex, Sensors.SensorDataModel.Value) ?? 0);
-    }
-
-    function fixedMaximum(sensorIndex) {
-        const maximum = metadataMaximum(sensorIndex);
-        return maximum > 0 ? maximum : historyMaximum(sensorIndex);
     }
 
     function sensorUnit(sensorIndex) {
@@ -208,15 +239,7 @@ Charts.LineChart {
         return sensorId.split("/").pop();
     }
 
-    function historyMaximum(sensorIndex) {
-        let maximum = 0;
-        for (let i = 0; i < rawHistory.length; ++i) {
-            maximum = Math.max(maximum, Number(rawHistory[i][sensorIndex]) || 0);
-        }
-        return maximum > 0 ? maximum : 1;
-    }
-
-    function historyRange(sensorIndex) {
+    function historyBounds(sensorIndex) {
         let minimum = Infinity;
         let maximum = -Infinity;
         for (let i = 0; i < rawHistory.length; ++i) {
@@ -232,38 +255,79 @@ Charts.LineChart {
             minimum = value;
             maximum = value;
         }
-        if (maximum <= minimum) {
-            const padding = Math.max(Math.abs(maximum) * 0.05, 1);
-            minimum = Math.max(0, minimum - padding);
-            maximum = maximum + padding;
-        }
         return {
             "minimum": minimum,
             "maximum": maximum
         };
     }
 
-    function scaleRange(sensorIndex) {
-        const mode = scaleMode(sensorIndex);
-        if (mode === "fixedPercent")
-            return {
-            "minimum": 0,
-            "maximum": 100
-        };
+    function historyMaximum(sensorIndex) {
+        const maximum = historyBounds(sensorIndex).maximum;
+        return isFinite(maximum) ? maximum : 1;
+    }
 
-        if (mode === "fixedMaximum")
-            return {
-            "minimum": 0,
-            "maximum": fixedMaximum(sensorIndex)
-        };
+    function preferredMaximumFallback(sensorIndex) {
+        if (sensorUnit(sensorIndex) === Formatter.Units.UnitPercent)
+            return 100;
 
-        if (mode === "historyRange")
-            return historyRange(sensorIndex);
+        return historyMaximum(sensorIndex);
+    }
 
+    function sensorMaximum(sensorIndex, minimum) {
+        const maximum = metadataMaximum(sensorIndex);
+        if (maximum > minimum)
+            return maximum;
+
+        const fallback = preferredMaximumFallback(sensorIndex);
+        return fallback > minimum ? fallback : minimum + 1;
+    }
+
+    function saneRange(minimum, maximum, sensorIndex) {
+        let safeMinimum = isFinite(minimum) ? minimum : 0;
+        let safeMaximum = isFinite(maximum) ? maximum : preferredMaximumFallback(sensorIndex);
+        if (safeMaximum <= safeMinimum) {
+            const history = historyBounds(sensorIndex);
+            if (history.maximum > safeMinimum)
+                safeMaximum = history.maximum;
+
+        }
+        if (safeMaximum <= safeMinimum) {
+            const padding = Math.max(Math.abs(safeMaximum) * 0.05, 1);
+            safeMinimum = Math.max(0, safeMinimum - padding);
+            safeMaximum = safeMaximum + padding;
+        }
         return {
-            "minimum": 0,
-            "maximum": fixedMaximum(sensorIndex)
+            "minimum": safeMinimum,
+            "maximum": safeMaximum
         };
+    }
+
+    function scaleRange(sensorIndex) {
+        const mode = rangeMode(sensorIndex);
+        const history = historyBounds(sensorIndex);
+        if (mode === 0)
+            return saneRange(0, sensorMaximum(sensorIndex, 0), sensorIndex);
+
+        if (mode === 1)
+            return saneRange(0, history.maximum, sensorIndex);
+
+        if (mode === 2)
+            return saneRange(history.minimum, history.maximum, sensorIndex);
+
+        if (mode === 3)
+            return saneRange(history.minimum, sensorMaximum(sensorIndex, history.minimum), sensorIndex);
+
+        if (mode === 4) {
+            const minimum = metadataMinimum(sensorIndex);
+            return saneRange(minimum, sensorMaximum(sensorIndex, minimum), sensorIndex);
+        }
+        if (mode === 5) {
+            const override = sensorOverride(sensorIndex);
+            const minimum = customOverrideValue(override, "customMinimum");
+            const maximum = customOverrideValue(override, "customMaximum");
+            return saneRange(minimum, maximum, sensorIndex);
+        }
+        return saneRange(0, sensorMaximum(sensorIndex, 0), sensorIndex);
     }
 
     function normalizedValue(value, sensorIndex) {
@@ -354,7 +418,7 @@ Charts.LineChart {
                 "minimum": range.minimum,
                 "maximum": range.maximum,
                 "unit": unit,
-                "mode": scaleMode(sensorIndex),
+                "mode": rangeModeName(rangeMode(sensorIndex)),
                 "ticks": scaleTicks(range.minimum, range.maximum, unit)
             });
         }
@@ -417,6 +481,7 @@ Charts.LineChart {
         rebuildHistoryModel();
     }
     onDesiredScaleTickCountChanged: rebuildScaleItems()
+    onRangeConfigurationKeyChanged: rebuildHistoryModel()
     colorSource: root.colorSource
 
     yRange {
