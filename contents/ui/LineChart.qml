@@ -143,34 +143,34 @@ Charts.LineChart {
         const name = sensorId.split("/").pop();
         const unit = sensorUnit(sensorIndex);
         if (unit === Formatter.Units.UnitPercent)
-            return rangeModeConfig("percentRangeMode", "percentNormalizationMode", "", 0);
+            return rangeModeConfig("percentRangeMode", "percentNormalizationMode", "", 2);
 
         if (isUnitFamily(unit, Formatter.Units.UnitByte))
-            return rangeModeConfig("byteRangeMode", "byteNormalizationMode", "", 0);
+            return rangeModeConfig("byteRangeMode", "byteNormalizationMode", "", 2);
 
         if (isUnitFamily(unit, Formatter.Units.UnitByteRate))
-            return rangeModeConfig("byteRateRangeMode", "byteRateNormalizationMode", "", 1);
+            return rangeModeConfig("byteRateRangeMode", "byteRateNormalizationMode", "", 2);
 
         if (isUnitFamily(unit, Formatter.Units.UnitHertz) || name === "coreFrequency" || name === "memoryFrequency")
             return rangeModeConfig("frequencyRangeMode", "frequencyNormalizationMode", "minMaxNormalizeFrequency", 2);
 
         if (unit === Formatter.Units.UnitBootTimestamp || unit === Formatter.Units.UnitSecond || unit === Formatter.Units.UnitTime || unit === Formatter.Units.UnitTicks || unit === Formatter.Units.UnitDuration)
-            return rangeModeConfig("timeRangeMode", "timeNormalizationMode", "", 1);
+            return rangeModeConfig("timeRangeMode", "timeNormalizationMode", "", 2);
 
         if (isUnitFamily(unit, Formatter.Units.UnitBitRate))
-            return rangeModeConfig("bitRateRangeMode", "bitRateNormalizationMode", "", 1);
+            return rangeModeConfig("bitRateRangeMode", "bitRateNormalizationMode", "", 2);
 
         if (isUnitFamily(unit, Formatter.Units.UnitVolt))
-            return rangeModeConfig("voltageRangeMode", "voltageNormalizationMode", "", 0);
+            return rangeModeConfig("voltageRangeMode", "voltageNormalizationMode", "", 2);
 
         if (isUnitFamily(unit, Formatter.Units.UnitWatt) || name === "power")
             return rangeModeConfig("powerRangeMode", "powerNormalizationMode", "minMaxNormalizePower", 2);
 
         if (isUnitFamily(unit, Formatter.Units.UnitWattHour))
-            return rangeModeConfig("energyRangeMode", "energyNormalizationMode", "", 0);
+            return rangeModeConfig("energyRangeMode", "energyNormalizationMode", "", 2);
 
         if (isUnitFamily(unit, Formatter.Units.UnitAmpere))
-            return rangeModeConfig("currentRangeMode", "currentNormalizationMode", "", 0);
+            return rangeModeConfig("currentRangeMode", "currentNormalizationMode", "", 2);
 
         if (unit === Formatter.Units.UnitCelsius || name === "temperature")
             return rangeModeConfig("temperatureRangeMode", "temperatureNormalizationMode", "minMaxNormalizeTemperature", 2);
@@ -179,12 +179,12 @@ Charts.LineChart {
             return rangeModeConfig("decibelRangeMode", "decibelNormalizationMode", "", 2);
 
         if (unit === Formatter.Units.UnitRate)
-            return rangeModeConfig("rateRangeMode", "rateNormalizationMode", "", 1);
+            return rangeModeConfig("rateRangeMode", "rateNormalizationMode", "", 2);
 
         if (unit === Formatter.Units.UnitRpm)
-            return rangeModeConfig("rpmRangeMode", "rpmNormalizationMode", "", 0);
+            return rangeModeConfig("rpmRangeMode", "rpmNormalizationMode", "", 2);
 
-        return rangeModeConfig("otherRangeMode", "otherNormalizationMode", "", 1);
+        return rangeModeConfig("otherRangeMode", "otherNormalizationMode", "", 2);
     }
 
     function rangeMode(sensorIndex) {
