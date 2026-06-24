@@ -27,7 +27,7 @@ It keeps each sensor's value and legend unit intact, while the graph scales each
 
 Unit defaults apply first. Any selected sensor can override the unit default from the Sensor range overrides section.
 
-All unit families default to `history min-history max`.
+All unit families default to `sensor min-sensor max`.
 
 ## Install From Git
 

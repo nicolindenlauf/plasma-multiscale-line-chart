@@ -31,49 +31,49 @@
             <default>82</default>
         </entry>
         <entry name="percentRangeMode" type="Int">
-            <default>2</default>
+            <default>4</default>
         </entry>
         <entry name="byteRangeMode" type="Int">
-            <default>2</default>
+            <default>4</default>
         </entry>
         <entry name="byteRateRangeMode" type="Int">
-            <default>2</default>
+            <default>4</default>
         </entry>
         <entry name="frequencyRangeMode" type="Int">
-            <default>2</default>
+            <default>4</default>
         </entry>
         <entry name="timeRangeMode" type="Int">
-            <default>2</default>
+            <default>4</default>
         </entry>
         <entry name="bitRateRangeMode" type="Int">
-            <default>2</default>
+            <default>4</default>
         </entry>
         <entry name="voltageRangeMode" type="Int">
-            <default>2</default>
+            <default>4</default>
         </entry>
         <entry name="temperatureRangeMode" type="Int">
-            <default>2</default>
+            <default>4</default>
         </entry>
         <entry name="powerRangeMode" type="Int">
-            <default>2</default>
+            <default>4</default>
         </entry>
         <entry name="energyRangeMode" type="Int">
-            <default>2</default>
+            <default>4</default>
         </entry>
         <entry name="currentRangeMode" type="Int">
-            <default>2</default>
+            <default>4</default>
         </entry>
         <entry name="decibelRangeMode" type="Int">
-            <default>2</default>
+            <default>4</default>
         </entry>
         <entry name="rateRangeMode" type="Int">
-            <default>2</default>
+            <default>4</default>
         </entry>
         <entry name="rpmRangeMode" type="Int">
-            <default>2</default>
+            <default>4</default>
         </entry>
         <entry name="otherRangeMode" type="Int">
-            <default>2</default>
+            <default>4</default>
         </entry>
         <entry name="sensorRangeOverrides" type="String">
             <default>{}</default>
