@@ -1,0 +1,37 @@
+{
+    "KPackageStructure": "KSysguard/SensorFace",
+    "KPlugin": {
+        "Authors": [
+            {
+                "Name": "nicolindenlauf"
+            },
+            {
+                "Email": "mart@kde.org",
+                "Name": "Marco Martin"
+            },
+            {
+                "Email": "davidedmundson@kde.org",
+                "Name": "David Edmundson"
+            },
+            {
+                "Email": "ahiemstra@heimr.nl",
+                "Name": "Arjen Hiemstra"
+            },
+            {
+                "Email": "kde@broulik.de",
+                "Name": "Kai Uwe Broulik"
+            },
+            {
+                "Email": "kde@david-redondo.de",
+                "Name": "David Redondo"
+            }
+        ],
+        "Description": "Display multiple System Monitor sensors together with independent colored scales and configurable normalization.",
+        "Icon": "office-chart-line",
+        "Id": "io.github.nicolindenlauf.multiscalelinechart",
+        "License": "LGPL-2.0-or-later",
+        "Name": "Multi-Scale Line Chart",
+        "Version": "1.0.0"
+    },
+    "X-KDE-ParentApp": "org.kde.plasmashell"
+}

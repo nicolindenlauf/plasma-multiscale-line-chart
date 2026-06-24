@@ -1,0 +1,5 @@
+dist/
+*.tar.gz
+*.zip
+*.kate-swp
+*.kdev4

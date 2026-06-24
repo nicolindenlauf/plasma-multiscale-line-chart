@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kcfg xmlns="http://www.kde.org/standards/kcfg/1.0"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.kde.org/standards/kcfg/1.0
+      http://www.kde.org/standards/kcfg/1.0/kcfg.xsd" >
+  <kcfgfile name=""/>
+
+    <group name="General">
+        <entry name="showLegend" type="Bool">
+            <default>true</default>
+        </entry>
+        <entry name="lineChartFillOpacity" type="Int">
+          <default>10</default>
+        </entry>
+        <entry name="lineChartSmooth" type="Bool">
+            <default>true</default>
+        </entry>
+         <entry name="showGridLines" type="Bool">
+            <default>true</default>
+        </entry>
+        <entry name="showYAxisLabels" type="Bool">
+            <default>true</default>
+        </entry>
+        <entry name="scaleTickCount" type="Int">
+            <default>5</default>
+        </entry>
+        <entry name="scaleGridOpacity" type="Int">
+            <default>18</default>
+        </entry>
+        <entry name="scaleLabelOpacity" type="Int">
+            <default>82</default>
+        </entry>
+        <entry name="percentNormalizationMode" type="Int">
+            <default>0</default>
+        </entry>
+        <entry name="byteNormalizationMode" type="Int">
+            <default>0</default>
+        </entry>
+        <entry name="byteRateNormalizationMode" type="Int">
+            <default>0</default>
+        </entry>
+        <entry name="frequencyNormalizationMode" type="Int">
+            <default>1</default>
+        </entry>
+        <entry name="timeNormalizationMode" type="Int">
+            <default>0</default>
+        </entry>
+        <entry name="bitRateNormalizationMode" type="Int">
+            <default>0</default>
+        </entry>
+        <entry name="voltageNormalizationMode" type="Int">
+            <default>0</default>
+        </entry>
+        <entry name="temperatureNormalizationMode" type="Int">
+            <default>1</default>
+        </entry>
+        <entry name="powerNormalizationMode" type="Int">
+            <default>1</default>
+        </entry>
+        <entry name="energyNormalizationMode" type="Int">
+            <default>0</default>
+        </entry>
+        <entry name="currentNormalizationMode" type="Int">
+            <default>0</default>
+        </entry>
+        <entry name="decibelNormalizationMode" type="Int">
+            <default>1</default>
+        </entry>
+        <entry name="rateNormalizationMode" type="Int">
+            <default>0</default>
+        </entry>
+        <entry name="rpmNormalizationMode" type="Int">
+            <default>0</default>
+        </entry>
+        <entry name="otherNormalizationMode" type="Int">
+            <default>0</default>
+        </entry>
+        <entry name="historyAmount" type="Int">
+            <default>60</default>
+        </entry>
+    </group>
+
+</kcfg>
